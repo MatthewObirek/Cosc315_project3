@@ -5,6 +5,7 @@
 
 # Vscode formatting
 .vscode
+
 # Object files
 *.o
 *.ko

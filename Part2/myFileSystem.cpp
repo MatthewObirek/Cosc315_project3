@@ -7,7 +7,7 @@
 myFileSystem::myFileSystem(std::string diskName)
 {
   // Open the file with name diskName
-   
+  
   // Read the first 1KB and parse it to structs/objecs representing the super block
   // 	An easy way to work with the 1KB memory chunk is to move a pointer to a
   //	position where a struct/object begins. You can use the sizeof operator to help
@@ -19,7 +19,7 @@ myFileSystem::myFileSystem(std::string diskName)
 }
 
 
-int myFileSystem::create(char name[8], int32 size)
+int myFileSystem::createF(char name[8], int32_t size)
 { 
   //create a file with this name and this size
 
@@ -44,7 +44,7 @@ int myFileSystem::create(char name[8], int32 size)
 
 
 
-int myFileSystem::delete(char name[8])
+int myFileSystem::deleteF(char name[8])
 {
   // Delete the file with this name
 
@@ -71,7 +71,7 @@ int myFileSystem::ls(void)
 
 } // End ls
 
-int myFileSystem::read(char name[8], int32 blockNum, char buf[1024])
+int myFileSystem::read(char name[8], int32_t blockNum, char buf[1024])
 {
 
    // read this block from this file
@@ -86,7 +86,7 @@ int myFileSystem::read(char name[8], int32 blockNum, char buf[1024])
 } // End read
 
 
-int myFileSystem::write(char name[8], int32 blockNum, char buf[1024])
+int myFileSystem::write(char name[8], int32_t blockNum, char buf[1024])
 {
 
    // write this block to this file
