@@ -5,8 +5,8 @@ FLAGS = -Wall -g
 
 all: mini-project3.o
 
-mini-project3.o: mini-project3.c
-	$(COMP) $(FLAGS) mini-project3.c -lpthread -o $@
+mini-project3.o: Part1/mini-project3.c
+	$(COMP) $(FLAGS) Part1/mini-project3.c -lpthread -o Part1/$@
 
 clean:
-	rm -f mini-project*.o
+	rm -f Part*/mini-project*.o
