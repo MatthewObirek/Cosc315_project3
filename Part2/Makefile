@@ -3,13 +3,13 @@ COMP = g++
 FLAGS = -Wall -g -std=c++0x
 #FLAGS = -Wall -g
 
-all: Part2
+all: myFileSystem.o Part2
 
 myFileSystem.o: myFileSystem.hpp myFileSystem.cpp
-	$(COMP) $(FLAGS) 
+	$(COMP) -c myFileSystem.cpp -o $@
 
 Part2: main.cpp myFileSystem.o myFileSystem.hpp
-	$(COMP) $(FLAGS) -lpthread main.cpp myFileSystem.o -o $@
+	$(COMP) $(FLAGS) -lpthread main.cpp myFileSystem.o -o out/$@
 
 clean:
-	rm -f Part*/mini-project*.o
+	rm -f *.o

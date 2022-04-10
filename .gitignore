@@ -3,6 +3,9 @@
 # Prerequisites
 *.d
 
+# Output Binarys
+Part2/out/*
+
 # Vscode formatting
 .vscode
 
