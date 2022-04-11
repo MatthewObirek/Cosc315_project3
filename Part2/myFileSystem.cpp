@@ -239,26 +239,70 @@ int myFileSystem::ls(void)
 int myFileSystem::read(char name[8], int32_t blockNum, char buf[1024])
 {
 
-   // read this block from this file
-   // Return an error if and when appropriate. For instance, make sure
-   // blockNum does not exceed size-1.
+  // read this block from this file
+  // Return an error if and when appropriate. For instance, make sure
+  // blockNum does not exceed size-1.
 
-   // Step 1: Locate the inode for this file as in Step 1 of delete.
+  // Step 1: Locate the inode for this file as in Step 1 of delete.
+  int index = -1;
+  for(int i = 0; i < maxNumFiles;  i++)
+  {
+    if(inodeIndex[i].used > 0)
+    {
+      if(strcmp(inodeIndex[i].name, name) == 0)
+      {
+        index = i;
+      }
+    }
+  }
+  
+  if(index == -1)
+  {
+    std::cout << "[Error]:(Read) No file with name: " << name << std::endl;
+    return -1;
+  }
 
-   // Step 2: Seek to blockPointers[blockNum] and read the block
-   // from disk to buf.
-
-} // End read
-
+  if(blockNum >= inodeIndex[index].size)
+  {
+    std::cout << "[Error]:(Read) blockNum is greater than  " << inodeIndex[index].size-1 <<": "<< blockNum<< std::endl;    
+    return -1;
+  }
+  
+  // Step 2: Seek to blockPointers[blockNum] and read the block
+  // from disk to buf.
+  disk.seekg((inodeIndex[index].blockPointers[blockNum]*blockSize),std::ios::beg);
+  disk.read(buf, blockSize);
+} // End read 
 
 int myFileSystem::write(char name[8], int32_t blockNum, char buf[1024])
 {
 
-   // write this block to this file
-   // Return an error if and when appropriate.
+  // write this block to this file
+  // Return an error if and when appropriate.
+  // Step 1: Locate the inode for this file as in Step 1 of delete.
+  int index = -1;
+  for(int i = 0; i < maxNumFiles; i++)
+  {
+    if(inodeIndex[i].used > 0)
+    {
+      if(strcmp(inodeIndex[i].name, name) == 0)
+      {
+        index = i;
+      }
+    }
+  }
+  if(index == -1)
+  {
 
-   // Step 1: Locate the inode for this file as in Step 1 of delete.
-
-   // Step 2: Seek to blockPointers[blockNum] and write buf to disk.
-   
+    std::cout << "[Error]:(Write) No file with name: " << name << std::endl;
+    return -1;
+  }
+    if(blockNum >= inodeIndex[index].size)
+  {
+    std::cout << "[Error]:(Write) blockNum is greater than "<<inodeIndex[index].size-1<<": " << name << std::endl;    
+    return -1;
+  }
+  // Step 2: Seek to blockPointers[blockNum] and write buf to disk.
+  disk.seekp((inodeIndex[index].blockPointers[blockNum]*blockSize), std::ios::beg);
+  disk.write(buf, blockSize);
 } // end write

@@ -15,13 +15,14 @@ struct inode
 
 class myFileSystem
 {
-private:
+public:
     const static int blockSize = 1024;
     const static int blockCount = 128;
     const static int maxFileSize = 8;
     const static int maxNumFiles = 16;
-    char* buffer;
 
+private:
+    char* buffer;
     std::fstream disk;
     char freeBlockList[blockCount];
     inode inodeIndex[maxNumFiles];              //initialzed with calloc in constructor;
