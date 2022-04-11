@@ -2,20 +2,67 @@
 #include "myFileSystem.hpp"
 
 
-#include <stdint.h>
-
-myFileSystem::myFileSystem(std::string diskName)
+myFileSystem::myFileSystem(const char* diskName)
 {
   // Open the file with name diskName
-  
+  disk.open(diskName, std::ios::in | std::ios::out);
   // Read the first 1KB and parse it to structs/objecs representing the super block
-  // 	An easy way to work with the 1KB memory chunk is to move a pointer to a
-  //	position where a struct/object begins. You can use the sizeof operator to help
-  //	cleanly determine the position. Next, cast the pointer to a pointer of the
-  //	struct/object type.
+  if(!disk.is_open())
+  {
+    std::cout << "diskName: False, Please try again." << std::endl;
+  }
+  else
+  {
+    buffer = (char*)calloc(blockSize, sizeof(char));
+    disk.readsome(buffer, blockSize);
+    std::cout << "freeblocklist address: " << &freeBlockList << std::endl;
+    std::cout << "inodeIndex address: " << &inodeIndex << std::endl;
+    // freeBlockList init
+    for(int i = 0; i < blockCount; i++)
+    {
+      freeBlockList[i] = buffer[i];
+    } 
+    std::cout << "freeBlockList Initialized" << std::endl;
+    // Making sure that the superblock is accounted for.
+    if(freeBlockList[0] != 1)
+      freeBlockList[0] = 1;
 
+
+    // 	An easy way to work with the 1KB memory chunk is to move a pointer to a
+    //	position where a struct/object begins. You can use the sizeof operator to help
+    //	cleanly determine the position. Next, cast the pointer to a pointer of the
+    //	struct/object type.
+    
+    //std::cout << "inodeIndex Address: " << &inodeIndex << std::endl;
+    // loading in inodes
+    int i = blockCount;
+    for(int j = 0; j < maxNumFiles; j++)
+    {
+      char temp[sizeof(inode)];
+      for(int k = 0; k < sizeof(inode); k++)
+      { 
+        temp[k] = buffer[i+k];
+      }
+      
+      inode* tempInode = (inode*)temp;
+      inodeIndex[j] = *tempInode;
+      //std::cout << "loading inode: " << j << std::endl;
+      //std::cout << &j << std::endl;
+      i+=sizeof(inode);
+    }
+
+    //std::cout << &inodeIndex << std::endl;
+    free(buffer);
+  }
   // Be sure to close the file in a destructor or otherwise before
   // the process exits.
+}
+
+myFileSystem::~myFileSystem()
+{
+  // Be sure to close the file in a destructor or otherwise before
+  // the process exits.
+  disk.close();
 }
 
 
@@ -25,21 +72,91 @@ int myFileSystem::createF(char name[8], int32_t size)
 
   // high level pseudo code for creating a new file
 
+  std::cout << "entering createF" << std::endl;
   // Step 1: Look for a free inode by searching the collection of objects
   // representing inodes within the super block object.
   // If none exist, then return an error.
   // Also make sure that no other file in use with the same name exists.
+  if(!(size <= maxFileSize))
+  {
+    std::cout << "[Error]: Size to big, max size: " << maxFileSize << ", Given Size: " << size << std::endl;
+    return -1;
+  }
+  int index = -1;
+  int i;
+  for(i = 0; i < maxNumFiles; i++)
+  {
+    std::cout << inodeIndex[0].name << std::endl; 
+    if ((strcmp(inodeIndex[i].name, name) == 0) && (inodeIndex[i].used > 0))
+    {
+      std::cout << "[Error]: File name taken" << std::endl;
+      return -1;
+    }
 
+    if ((int)inodeIndex[i].used == 0)
+    {
+      index = i;
+      break;
+    }
+  }
+ 
+  if(i > 15)
+  {
+    std::cout << "[Error]: disk is full" << std::endl;
+    return -1;
+  }
   // Step 2: Look for a number of free blocks equal to the size variable
   // passed to this method. If not enough free blocks exist, then return an error.
-
+  int blockIndexArray[size];
+  int k = 0;
+  for(int j = 0; j < blockCount; j++)
+  {
+    if(freeBlockList[j] == 0)
+    {
+      blockIndexArray[k] = j;
+      k++;
+    }
+    if(k == size)
+      break;
+  }
+  if(k < size-1)
+  {
+    std::cout << "[Error]: not enough space" << std::endl;
+    return -1;
+  }
   // Step 3: Now we know we have an inode and free blocks necessary to
   // create the file. So mark the inode and blocks as used and update the rest of
-  // the information in the inode.
-
+  // the information in the inode
+  strcpy(inodeIndex[index].name, name);
+  inodeIndex[index].size = size;
+  inodeIndex[index].used = 1;
+  for(int j = 0; j < size; j++)
+  {
+    freeBlockList[blockIndexArray[j]] = 1;
+    inodeIndex[index].blockPointers[j] = blockIndexArray[j];
+  }
   // Step 4: Write the entire super block back to disk.
   //	An easy way to do this is to seek to the beginning of the disk
   //	and write the 1KB memory chunk.
+  buffer = (char*)calloc(blockSize, sizeof(char));
+      std::cout << "inodeIndex address:" << &inodeIndex << std::endl;
+  char* inodeIndexPointer = (char*)&inodeIndex;
+  for(int n = 0; n < blockSize; n++)
+  {
+    if(n < blockCount)
+      buffer[n] = freeBlockList[n];
+    if(n >= blockCount && n < (sizeof(inode)*maxNumFiles + blockCount))
+    {
+      buffer[n] = inodeIndexPointer[n-blockCount];
+    }
+         
+  }
+
+
+
+  disk.seekp(0, std::ios::beg);
+  disk.write(buffer, blockSize);
+  return 0;
 } // End Create
 
 
@@ -52,14 +169,56 @@ int myFileSystem::deleteF(char name[8])
   // by searching the collection of objects
   // representing inodes within the super block object.
   // If it does not exist, then return an error.
+  int index = -1;
+  for(int i = 0; i < maxNumFiles; i++)
+  {
+    if(strcmp(inodeIndex[i].name, name) == 0)
+    {
+      index = i;
+    }
+  }
 
+  if(index == -1)
+  {
+    {
+      std::cout << "[Error]: no file found by the name of: " << name << std::endl;
+    }
+  }
   // Step 2: Free blocks of the file being deleted by updating
   // the object representing the free block list in the super block object.
-
+  for(int j = 0; j < inodeIndex[index].size; j++)
+  {
+    freeBlockList[inodeIndex[index].blockPointers[j]] = 0;
+    inodeIndex[index].blockPointers[j] = 0;
+  }
+  //
   // Step 3: Mark inode as free.
 
-  // Step 4: Write the entire super block back to disk.
 
+  //inodeIndex[index].name
+  inodeIndex[index].size = 0;
+  inodeIndex[index].used = 0;
+  //Step 4: Write the entire super block back to disk.
+  buffer = (char*)calloc(blockSize, sizeof(char));
+  //    std::cout << "inodeIndex address:" << &inodeIndex << std::endl;
+  char* inodeIndexPointer = (char*)&inodeIndex;
+  for(int n = 0; n < blockSize; n++)
+  {
+    if(n < blockCount)
+      buffer[n] = freeBlockList[n];
+    if(n >= blockCount && n < (sizeof(inode)*maxNumFiles + blockCount))
+    {
+      buffer[n] = inodeIndexPointer[n-blockCount];
+    }
+         
+  }
+
+
+
+  disk.seekp(0, std::ios::beg);
+  disk.write(buffer, blockSize);
+  std::cout << "File Deleted" << std::endl;
+  return 0;
 } // End Delete
 
 
@@ -68,7 +227,13 @@ int myFileSystem::ls(void)
   // List names of all files on disk
 
   // Step 1: Print the name and size fields of all used inodes.
-
+  for(int i = 0; i < maxNumFiles; i++)
+  {
+    
+    //std::cout << "inodeIndex[i].used == "<< (int)inodeIndex[i].used << std::endl;
+    if(inodeIndex[i].used > 0)
+      std::cout << inodeIndex[i].name << " " << inodeIndex[i].size << std::endl;
+  }
 } // End ls
 
 int myFileSystem::read(char name[8], int32_t blockNum, char buf[1024])
