@@ -1,14 +1,10 @@
 # Cosc315_project3
 
-The make file runs this line of code, which is translated into this line of bash
-
-`$(COMP) $(FLAGS) Part1/mini-project3.c -lpthread -o Part1/$@` -> `$(COMP) $(FLAGS) Part1/mini-project3.c -lpthread -o Part1/$@`
-
 ---
 
 ## Group Members & Division of Tasks
 
-Monica Rampaul: Documentation
+Monica Rampaul: Testing and Documentation
 Matthew Obirek: Part 2
 Manson Yu: Part 1
 
@@ -16,9 +12,9 @@ Manson Yu: Part 1
 
 ## Part 1
 
-### Run Instructions:
-To run the program, either use this: `cd Part1` - > `./mini-project3 input.txt`
-or:  `./Part1/mini-project3 Part1/input.txt`
+### Build and Run Instructions:
+to Build the program, change to the Part1 directory by running `cd Part1` in the main `Cosc315_project3` directory. Then run `make`. To run the program, inside the Part1 directory, run `./Part1.o input.txt`
+
 
 ### Explanation & Design Choices:
 This implementation uses two functions: `read_metadata_values` as well as a `main` function. 
@@ -38,4 +34,8 @@ virtual address 55535 is in page number 13 and offset 2287
 ---
 
 ## Part 2
+
+### Build and Run Instructions:
+to Build the program, change to the Part1 directory by running `cd Part1` in the main `Cosc315_project3` directory. Then run `make`. To run the program, inside the Part1 directory, run `./Part1.o input.txt`
+
 
