@@ -36,6 +36,86 @@ virtual address 55535 is in page number 13 and offset 2287
 ## Part 2
 
 ### Build and Run Instructions:
-to Build the program, change to the Part1 directory by running `cd Part1` in the main `Cosc315_project3` directory. Then run `make`. To run the program, inside the Part1 directory, run `./Part1.o input.txt`
+to Build the program, change to the Part2 directory by running `cd Part2` in the main `Cosc315_project3` directory. Then run `mkdir out`, and then `make`. To run the program, inside the Part2 directory build disk0: `./create_fs.o disk`, then run `./out/Part2 disk0`
 
 
+### Sample output
+```
+[matthewobirek@MatthewPC Part2]$ ./out/Part2 disk0
+(Constructor) freeBlockList Initialized
+
+(createF) File: file1.c Size: 3 Created!
+
+(createF) File: file2.c Size: 8 Created!
+
+(createF) File: file3.c Size: 4 Created!
+
+(createF) File: a.out Size: 5 Created!
+
+(createF) File: lab1.jav Size: 6 Created!
+
+(List)
+|_file1.c       3kB
+|_file2.c       8kB
+|_file3.c       4kB
+|_a.out 5kB
+|_lab1.jav      6kB
+
+(CommandSwitch) What would you like to write? hellkadfg
+(CommandSwitch) What would you like to write? sdghdfh
+(CommandSwitch) What would you like to write? dfh
+(CommandSwitch) What would you like to write? dfhfd
+(CommandSwitch) What would you like to write? gds
+(CommandSwitch) What would you like to write? a
+(CommandSwitch) What would you like to write? sdaf
+(CommandSwitch) What would you like to write? afg
+(CommandSwitch) What would you like to write? dfg
+(CommandSwitch) What would you like to write? sdh
+(CommandSwitch) What would you like to write? sdghs
+(CommandSwitch) What would you like to write? fg
+(CommandSwitch) What would you like to write? sdgsdg
+(deleteF) File: file3.c Deleted.
+ 
+(CommandSwitch) buffer read from: file1.c at Personal inodeBlock: 2
+Buffer: dfh
+
+(createF) File: file4.c Size: 7 Created!
+
+(List)
+|_file1.c       3kB
+|_file2.c       8kB
+|_file4.c       7kB
+|_a.out 5kB
+|_lab1.jav      6kB
+
+(CommandSwitch) buffer read from: file2.c at Personal inodeBlock: 4
+Buffer: sdaf
+
+(CommandSwitch) buffer read from: file2.c at Personal inodeBlock: 5
+Buffer: afg
+
+(CommandSwitch) buffer read from: file2.c at Personal inodeBlock: 6
+Buffer: 
+
+(deleteF) File: lab1.jav Deleted.
+
+(createF) File: lab2.jav Size: 7 Created!
+
+(CommandSwitch) buffer read from: a.out at Personal inodeBlock: 1
+Buffer: sdh
+
+(CommandSwitch) buffer read from: a.out at Personal inodeBlock: 3
+Buffer: fg
+
+(CommandSwitch) buffer read from: a.out at Personal inodeBlock: 0
+Buffer: dfg
+
+(List)
+|_file1.c       3kB
+|_file2.c       8kB
+|_file4.c       7kB
+|_a.out 5kB
+|_lab2.jav      7kB
+
+(Destructor) Closing File System
+```
