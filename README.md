@@ -38,8 +38,22 @@ virtual address 55535 is in page number 13 and offset 2287
 ### Build and Run Instructions:
 to Build the program, change to the Part2 directory by running `cd Part2` in the main `Cosc315_project3` directory. Then run `mkdir out`, and then `make`. To run the program, inside the Part2 directory build disk0: `./create_fs.o disk`, then run `./out/Part2 disk0`
 
+### Explanation & Design Choices:
+This implementation uses five functions: `myFileSystem`, `createF`, `deleteF`, `ls`, `read`, and `write`.
 
-### Sample output
+`myFileSystem` is used to open a specified disk and read the first 1KB into blocks and superblocks. `disk.open` is used to open the disk with the specifies name. Then, it reads the first 1KB and parses it to a struct/object in order to represent the data in the appropriate blocks/superblocks as necessary. `calloc()` is called in order to allocate memory based on the specifications and `readsome` is used to store information from the stream into an array. Next, the appropriate pointers are used and referenced in order to load in inodes. Finally, the memory allocated for the buffer is freed and the file is closed. 
+
+`createF` is used to create a file with the specified name and size. First, this function searched for an inode that is free by searching the superblock object and then performs error checking to ensure that there no existing file with the same name as well as to ensure that there is indeed a free  inode that can be used. Then, the function looks for an equal number of blocks to the size and does error checking/handling in the case that there are not enough blocks to equal the size. Next, the function updates the relevant information: the inodes and blocks found previously are marked so that we know that they are used and the rest of the information in the inode is updated as appropriate. Finally, the entire superblock is written back to the disk, specifically, the 1KB memory chunk. 
+
+`deleteF` is used to delete a file with the specified name. First, the superblocks are searched for the inode that must be deleted based on the name that is passed to this function and does some error checking/handling in the case that the inode does not exist. Then, the blocks are are used by the file are freed by updating the object's information. At this point, the inode that has been freed is marked as free. Finally, the entire superblock is written back to the disk by using the appropriate blocks and pointers. 
+
+`ls` is used to list the name of all of the files on the disk. This is done using the names and sie fields of all of the inodes that are used.
+
+`read` is used to read a specified block from a specified file. First, the inode that is searched for by comparing the file names using `strncomp()`. Next, the block gets read from the disk into the buffer by allocating the appropriate memory and seeking. 
+
+`write` is used to write a block to a file. First, the inode for the file is located based off the comparison of file names using `strncmp()`. Next, the funciton seeks to the appropriate block and writes the information to the disk.
+
+### Sample Output
 ```
 [matthewobirek@MatthewPC Part2]$ ./out/Part2 disk0
 (Constructor) freeBlockList Initialized
